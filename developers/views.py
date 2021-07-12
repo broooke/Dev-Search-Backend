@@ -23,7 +23,7 @@ def getDevelopers(request):
 
 @api_view(['GET'])
 def getDeveloper(request, pk):
-    developer = Profile.objects.get(id=pk)
+    developer = Profile.objects.get(username=pk)
     serializer = ProfileSerializer(developer, many=False)
     return Response(serializer.data)
 
