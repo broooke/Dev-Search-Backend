@@ -39,6 +39,7 @@ def addReview(request):
             body = data['body'],
             value = data['vote']
         )
+        project.getVoteCount()
         return Response("Review was created")
     except:
         message = {'detail':'Ошибка с сервером, попробуйте позже'}

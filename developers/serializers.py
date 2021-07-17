@@ -23,14 +23,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
-class SkillSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Skill
-        fields = '__all__'
-    
 class CustomerSerializer(serializers.ModelSerializer):
     token = serializers.SerializerMethodField(read_only=True)
+    skills = serializers.SerializerMethodField(read_only=True)
+    projects = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Profile
@@ -39,3 +35,20 @@ class CustomerSerializer(serializers.ModelSerializer):
     def get_token(self, obj):
         token = RefreshToken.for_user(obj.user)
         return str(token.access_token)
+    
+    def get_skills(self, obj):
+        skills = obj.skill_set.all()
+        serializer = SkillSerializer(skills, many=True)
+        return serializer.data
+    
+    def get_projects(self, obj):
+        projects = obj.project_set.all()
+        serializer = ProjectSerializer(projects, many=True)
+        return serializer.data
+
+
+class SkillSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Skill
+        fields = '__all__'
