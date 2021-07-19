@@ -144,8 +144,34 @@ def addProject(request):
                 project.tags.add(tag)
         
         project.save()
+
+        serializer = CustomerSerializer(profile, many=False)
+        return Response(serializer.data)
     except:
         message = {'detail':'Ошибка с сервером, попробуйте позже'}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['PUT'])
+def editSkill(request):
+    data = request.data
+    profile = Profile.objects.get(id=int(data['id_user']))
+    skill = Skill.objects.get(id=int(data['id']))
+    skill.name = data['name']
+    skill.description = data['description']
+    skill.save()
+    serializer = CustomerSerializer(profile, many=False)
+    return Response(serializer.data)
 
+@api_view(['POST'])
+def deleteSkill(request):
+    profile = Profile.objects.get(id=request.data['id_user'])
+    skill = Skill.objects.get(id=int(request.data['id'])).delete()
+    serializer = CustomerSerializer(profile, many=False)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def deleteProject(request):
+    profile = Profile.objects.get(id=request.data['id_user'])
+    project = Project.objects.get(id=int(request.data['id'])).delete()
+    serializer = CustomerSerializer(profile, many=False)
+    return Response(serializer.data)

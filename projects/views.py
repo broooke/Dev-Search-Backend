@@ -1,6 +1,6 @@
 from developers.models import Profile
-from projects.serializers import ProjectSerializer
-from projects.models import Project, Review
+from projects.serializers import ProjectSerializer, TagSerializer
+from projects.models import Project, Review, Tag
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
@@ -44,3 +44,10 @@ def addReview(request):
     except:
         message = {'detail':'Ошибка с сервером, попробуйте позже'}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def getTags(request):
+    tags = Tag.objects.all()
+    serializer = TagSerializer(tags, many=True)
+    return Response(serializer.data)
