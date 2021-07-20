@@ -1,7 +1,7 @@
 from projects.models import Project, Tag
-from developers.serializers import CustomerSerializer, ProfileSerializer
+from developers.serializers import CustomerSerializer, MessageSerializer, ProfileSerializer
 from django.contrib.auth.models import User
-from developers.models import Profile, Skill
+from developers.models import Message, Profile, Skill
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from django.db.models import Q
@@ -175,3 +175,55 @@ def deleteProject(request):
     project = Project.objects.get(id=int(request.data['id'])).delete()
     serializer = CustomerSerializer(profile, many=False)
     return Response(serializer.data)
+
+@api_view(['PUT'])
+def editProject(request):
+    data = request.data
+    profile = Profile.objects.get(id=int(data['id_user']))
+    project = Project.objects.get(id=int(data['id']))
+    project.title = data['title']
+    project.description = data['description']
+    if len(data['picture']) != 0:
+        project.featured_image = data['picture']
+    project.demo_link = data['demo']
+    project.source_link = data['source']
+    if len(data['tags']) != 0:
+        clear_tags = [project.tags.remove(tag) for tag in project.tags.all()]
+        tags = json.loads(data['tags'])
+        for el in tags:
+            tag = Tag.objects.get(name=el['value'])
+            project.tags.add(tag)
+    project.save()
+    serializer = CustomerSerializer(profile, many=False)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def getMessages(request):
+    data = request.data
+    profile = Profile.objects.get(id=int(data['id']))
+    messages = Message.objects.filter(recipient=profile)
+    serializer = MessageSerializer(messages, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def getMessage(request, pk):
+    message = Message.objects.get(id=pk)
+    message.is_read = True
+    message.save()
+    serializer = MessageSerializer(message, many=False)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def sendMessage(request):
+    data = request.data
+    sender = Profile.objects.get(id=int(data['sender']))
+    recipient = Profile.objects.get(id=int(data['recipient']))
+    Message.objects.create(
+        sender = sender,
+        recipient = recipient,
+        name = data['name'],
+        email = data['email'],
+        subject = data['subject'],
+        body = data['body'],
+    )
+    return Response("Message was created")

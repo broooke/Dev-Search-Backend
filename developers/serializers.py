@@ -1,6 +1,6 @@
 from projects.serializers import ProjectSerializer
 from rest_framework import serializers
-from .models import Profile, Skill
+from .models import Profile, Skill, Message
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -51,4 +51,11 @@ class SkillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Skill
+        fields = '__all__'
+
+
+class MessageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Message
         fields = '__all__'
